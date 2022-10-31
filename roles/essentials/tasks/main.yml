@@ -1,0 +1,25 @@
+---
+
+- name: Install essential packages to their latest version
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+    state: latest
+  with_items:
+    - git
+    - vim
+    - curl
+    - ufw
+    - wget
+  become: true
+  notify:
+    - Start ntp
+
+- name: Allow OpenSSH rule
+  ufw:
+    rule: allow
+    name: OpenSSH
+- name: Allow OpenSSH rule
+  ufw:
+    rule: allow
+    name: 'WWW Full'

@@ -1,0 +1,15 @@
+---
+
+- name: Start ntp
+  service:
+    name: ntp
+    state: started
+    enabled: yes
+  become: true
+
+- name: Start ufw
+  service:
+    name: ufw
+    state: enabled
+    enabled: yes
+  become: true

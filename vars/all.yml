@@ -1,0 +1,20 @@
+---
+
+php_version: 8.1
+username: vagrant
+vhost_name: lavarel
+server_document_root: "/var/www/html"
+repo_url: https://github.com/f1amy/laravel-realworld-example-app.git
+
+
+
+# Variables for Role Certbot certs.
+# certbot_create_if_missing: false
+# certbot_create_method: standalone
+# certbot_admin_email: devops4solutions@gmail.com
+
+# certbot_create_standalone_stop_services:
+#   - apache2
+
+# apache_vhosts:
+#   - {servername: "php.darvein.xyz", serveralias: "www.php.darvein.xyz", documentroot: "/var/www/html/lavarel_project/public"}
