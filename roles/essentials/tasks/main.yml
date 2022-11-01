@@ -11,6 +11,9 @@
     - curl
     - ufw
     - wget
+    - unzip
+    - apache2
+    - pip
   become: true
   notify:
     - Start ntp
@@ -23,3 +26,6 @@
   ufw:
     rule: allow
     name: 'WWW Full'
+- name: Allow port 80
+  ufw:
+    rule:

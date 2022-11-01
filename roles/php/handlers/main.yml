@@ -1,13 +1,6 @@
 ---
-
-- name: Start php-fpm
+- name: restart apache2
   service:
-    name: php{{ php_version }}-fpm
-    state: started
-  become: true
-
-- name: Restart php-fpm
-  service:
-    name: php{{ php_version }}-fpm
     state: restarted
-  become: true
+    name: apache2
+    daemon_reload: yes

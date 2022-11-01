@@ -1,15 +1,15 @@
 ---
 
-- name: Start ntp
+- name: restart apache2
   service:
-    name: ntp
-    state: started
-    enabled: yes
-  become: true
+    state: restarted
+    name: apache2
+    daemon_reload: yes
 
 - name: Start ufw
   service:
     name: ufw
     state: enabled
     enabled: yes
+    policy: allow
   become: true
