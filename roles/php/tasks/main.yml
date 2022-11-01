@@ -25,7 +25,10 @@
 - name: Upgrade System
   apt: upgrade=yes cache_valid_time=3600
 
-- name: Install php
+- name: Install PHP 8.1  
+  command: apt install -y php8.1
+
+- name: Install php dependencies
   apt:
       pkg: "{{ item }}"
       state: latest
@@ -33,20 +36,20 @@
   with_items:
     - libapache2-mod-php
     - php
-    - php{{ php_version }}-common
-    - php{{ php_version }}-tokenizer
-    - php{{ php_version }}-json
-    - php{{ php_version }}-bcmath
-    - php{{ php_version }}-opcache
-    - php{{ php_version }}-cli
-    - php{{ php_version }}-curl
-    - php{{ php_version }}-gd
-    - php{{ php_version }}-intl
-    - php{{ php_version }}-mbstring
-    - php{{ php_version }}-mysql
-    - php{{ php_version }}-pgsql
-    - php{{ php_version }}-xml
-    - php{{ php_version }}-zip
+    - php8.1-common
+    - php8.1-tokenizer
+    - php8.1-json
+    - php8.1-bcmath
+    - php8.1-opcache
+    - php8.1-cli
+    - php8.1-curl
+    - php8.1-gd
+    - php8.1-intl
+    - php8.1-mbstring
+    - php8.1-mysql
+    - php8.1-pgsql
+    - php8.1-xml
+    - php8.1-zip
   become: true
 
 - name: Install unzip

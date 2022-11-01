@@ -15,8 +15,6 @@
     - apache2
     - pip
   become: true
-  notify:
-    - Start ntp
 
 - name: Allow OpenSSH rule
   ufw:
@@ -26,6 +24,3 @@
   ufw:
     rule: allow
     name: 'WWW Full'
-- name: Allow port 80
-  ufw:
-    rule:
