@@ -11,13 +11,16 @@
 - name: Install Php dependencies
   command: apt install software-properties-common -y
 
-- name: Download foo.conf
-  ansible.builtin.get_url:
-    url: https://packages.sury.org/php/apt.gpg
-    dest: /etc/apt/trusted.gpg.d/php.gpg
+# - name: Download php packages
+#   ansible.builtin.get_url:
+#     url: https://packages.sury.org/php/apt.gpg
+#     dest: /etc/apt/trusted.gpg.d/php.gpg
 
-- name: Add PPA to the server packages
-  command: echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/php.list
+# - name: Add PPA to the server packages
+#   command: echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/php.list
+
+- name: Add repository
+  command: add-apt-repository ppa:ondrej/php
 
 - name: Update system
   apt: update_cache=yes cache_valid_time=3600
@@ -57,7 +60,7 @@
 
 - name: checkout latest code from github
   git: 
-    repo: "{{ repo_url }}"
+    repo: https://github.com/f1amy/laravel-realworld-example-app.git
     dest: /var/www/html/
     clone: yes  
 
@@ -111,6 +114,8 @@
 #   ansible.builtin.apt:
 #     name: composer
 #     state: present
+
+
 - name: Composer Install
   composer:
     command: install

@@ -1,7 +1,7 @@
 ---
 
-php_version: 8.1
-username: vagrant
+# php_version: 8.1
+username: ubuntu
 vhost_name: lavarel
 server_document_root: "/var/www/html"
 repo_url: https://github.com/f1amy/laravel-realworld-example-app.git
