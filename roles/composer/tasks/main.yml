@@ -1,0 +1,33 @@
+- name: installs all composer lib
+  composer:
+      command: install
+      working_dir: /var/www/altschool/laravel
+
+- name: Ansible shell module multiple commands
+  shell: "{{ item }}"
+  become: true
+  with_items:
+      - php artisan key:generate
+      - php artisan config:cache
+      - php artisan migrate:fresh
+      - php artisan migrate --seed
+  args:
+      chdir: /var/www/html/laravel
+      notify: reload apache2 
+# - name: Composer Install
+#   composer:
+#     command: install
+#     working_dir: /var/www/html/laravel
+#   become: false
+
+# - name: Ansible shell module multiple commands
+#   shell: "{{ item }}"
+#   become: true
+#   with_items:
+#       - php artisan key:generate
+#       - php artisan config:cache
+#       - php artisan migrate:fresh
+#       - php artisan migrate --seed
+#   args:
+#       chdir: /var/www/html/laravel
+#       notify: reload apache2     

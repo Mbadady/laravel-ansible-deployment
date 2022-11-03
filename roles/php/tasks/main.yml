@@ -4,23 +4,11 @@
 - name: Upgrade System
   apt: upgrade=yes cache_valid_time=3600
 
-# - name: Add php repository
-#   apt_repository:
-#    repo: 'ppa:ondrej/php'
-
 - name: Install Php dependencies
   command: apt install software-properties-common -y
 
-# - name: Download php packages
-#   ansible.builtin.get_url:
-#     url: https://packages.sury.org/php/apt.gpg
-#     dest: /etc/apt/trusted.gpg.d/php.gpg
-
-# - name: Add PPA to the server packages
-#   command: echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/php.list
-
 - name: Add repository
-  command: add-apt-repository ppa:ondrej/php
+  command: add-apt-repository ppa:ondrej/php -y
 
 - name: Update system
   apt: update_cache=yes cache_valid_time=3600
@@ -28,20 +16,19 @@
 - name: Upgrade System
   apt: upgrade=yes cache_valid_time=3600
 
-- name: Install PHP 8.1  
+- name: Install PHP 8.1
   command: apt install -y php8.1
 
 - name: Install php dependencies
   apt:
       pkg: "{{ item }}"
-      state: latest
+      state: present
       update_cache: yes
   with_items:
     - libapache2-mod-php
     - php
     - php8.1-common
     - php8.1-tokenizer
-    - php8.1-json
     - php8.1-bcmath
     - php8.1-opcache
     - php8.1-cli
@@ -55,57 +42,90 @@
     - php8.1-zip
   become: true
 
-- name: Install unzip
-  apt: name=unzip state=latest
-
-- name: checkout latest code from github
-  git: 
+  #- name: checkout latest code from github
+  # command: git clone https://github.com/f1amy/laravel-realworld-example-app.git
+- name: Clone the project repo
+  git:
     repo: https://github.com/f1amy/laravel-realworld-example-app.git
-    dest: /var/www/html/
-    clone: yes  
+    dest: /home/ubuntu/
+    clone: yes
+    update: no
 
-- name: copy .env-example to .env
+- name: Checking if laravel-realworld-example exists
+  stat:
+     path: /home/ubuntu/laravel-realworld-example-app
+  register: file_data
+- name: Report if the directory exists
+  debug:
+    msg: "The directory exists"
+  when: file_data.stat.exists
+- name: Report Missing directory
+  debug:
+    msg: "The directory does not exist"
+  when: not file_data.stat.exists
+
+#- name: Move repo to web folder
+#command: mv /home/ubuntu/laravel-realworld-example-app /var/www/html/
+
+#- name: copy .env.example to .env
+  #copy:
+  # src: /var/www/html/laravel-realworld-example-app/.env.example
+  # dest: /var/www/html/laravel-realworld-example-app/.env
+
+#- name: copy lavarel project
+# command: mv /var/www/html/laravel-realworld-example-app /var/www/html/laravel
+
+- name: Change permission
+  command: chgrp -R www-data /var/www/html/laravel/
+
+- name: Change permission
+  command: chgrp -R www-data /var/www/html/laravel/
+
+- name: Change permission
+  command: chmod -R 775 /var/www/html/laravel/storage
+
+- name: Change permission
+  command: chmod -R 775 /var/www/html/laravel/bootstrap/cache
+
+- name: Change permission
+  command: chmod -R 775 /var/www/html/laravel
+- name: Copy .env.example to .env
   copy:
-    src: /var/www/html/{{ vhost_name}}/.env-example
-    dest: /var/www/html/{{ vhost_name }}/.env
+          dest: /var/www/html/laravel/.env
+          group: root
+          owner: root
+          mode: 0755
+          src: /var/www/html/laravel/.env.example
 
 - name: Configure your .env file
-  template: src=env.conf.j2 dest="/var/www/html/{{ vhost_name }}/.env"
-
-- name: copy lavarel project
-  command: sudo mv /var/www/html/laravel-realworld-example-app /var/www/html/{{ vhost_name }}
-
-- name: Change permission
-  command: sudo chgrp -R www-data /var/www/html/{{ vhost_name }}/
-
-- name: Change permission
-  command: sudo chmod -R 775 /var/www/html/{{ vhost_name }}/storage
-
-- name: Change permission
-  command: sudo chmod -R 775 /var/www/html/{{ vhost_name }}/bootstrap/cache
-  
-- name: Change permission
-  command: sudo chmod -R 775 /var/www/html/{{ vhost_name }}
-
-# - name: Remove default apache vhost config from sites-enabled
-#   file: name=/etc/apache2/sites-enabled/000-default.conf state=absent
-
-# - name: copy .env-example to .env
-#   shell: sudo cp /var/www/html/{{ vhost_name}}/.env-example /var/www/html/{{ vhost_name }}/.env
-
-- name: Download php-composer
-  command: curl -sS https://getcomposer.org/installer | php
+  template: src=env.conf.j2 dest="/var/www/html/laravel/.env"
+- name: Download Installer
+  command: curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
 
 - name: Install
   command: php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
 
-- name: rename composer.phar to composer
-  shell: mv /usr/local/bin/composer.phar /usr/local/bin/composer
-  args:
-    creates: /usr/local/bin/composer
+  #- name: rename composer.phar to composer
+  #shell: mv /usr/local/bin/composer.phar /usr/local/bin/composer
+  #args:
+  # creates: /usr/local/bin/composer
+- name: Add Composer to global path
+  copy:
+          dest: /usr/local/bin/composer
+          group: root
+          owner: root
+          mode: 0755
+          src: /usr/local/bin/composer.phar
+          remote_src: yes
+
+- name: Update system
+  apt: update_cache=yes cache_valid_time=3600
+
+- name: Upgrade System
+  apt: upgrade=yes cache_valid_time=3600
 
 - name: make composer executable
-  file: 
+  file:
     path: /usr/local/bin/composer
     mode: a+x
     state: file
@@ -114,42 +134,8 @@
 #   ansible.builtin.apt:
 #     name: composer
 #     state: present
+- name: Update system
+  apt: update_cache=yes cache_valid_time=3600
 
+  
 
-- name: Composer Install
-  composer:
-    command: install
-    working_dir: /var/www/html/{{ vhost_name }}
-
-- name: Ansible shell module multiple commands  
-  shell: "{{ item }}" 
-  become: true
-  with_items:  
-      - php artisan key:generate  
-      - php artisan config:cache 
-      - php artisan migrate:fresh  
-      - php artisan migrate --seed  
-  args:  
-      chdir: /var/www/html/{{ vhost_name }} 
-      notify: reload apache2
-
-
-- name: Create apache vhosts for  domain
-  template: 
-    src: web.conf.j2 
-    dest: "/etc/apache2/sites-available/{{ vhost_name }}.conf" 
-    owner: www-data 
-    group: www-data 
-    mode: '0644'
-
-- name: Enable the Apache rewrite module
-  command:  a2enmod rewrite
-
-- name: Disable apache default host configuration 
-  command: a2dissite 000-default.conf
-
-- name: Activate the lavarel virtual host configuration
-  command:  a2ensite {{ vhost_name }}.conf
-
-  notify:
-    - restart apache2     

@@ -1,0 +1,54 @@
+- name: Update Apt Repository
+  apt: update_cache=yes cache_valid_time=3600
+
+- name: Upgrade The Apt Repository
+  apt: upgrade=yes cache_valid_time=3600
+
+- name: Install Python3
+  apt: name=python3 state=latest
+
+- name: Install Pip
+  apt: name=pip state=latest
+
+- name: Install MySQL Server
+  apt:
+     name: mysql-server
+     state: latest
+
+- name: Install MySQL Client
+  apt:
+     name: mysql-client
+     state: latest
+- name: Install PyMySQL Library
+  pip:
+     name: pymysql
+     state: latest
+
+- name: Start MySQL
+  service:
+      name: mysql
+      state: started
+      enabled: true
+
+- name: Set Root Password
+  mysql_user:
+     login_host: 'localhost'
+     login_user: 'root'
+     login_password: ''
+     name: 'root'
+     password: "{{ password }}"
+     state: present
+
+# - name: Remove Anon Users
+#   mysql_user:
+#      login_user: 'root'
+#      login_password: "{{ newPass }}"
+#      name: ''
+#      host_all: yes
+#      state: absent
+- name: Create a DB
+  mysql_db:
+     login_user: 'root'
+     login_password: "{{ password }}"
+     name: "{{ dbName }}"
+     state: present

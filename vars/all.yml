@@ -6,6 +6,9 @@ vhost_name: lavarel
 server_document_root: "/var/www/html"
 repo_url: https://github.com/f1amy/laravel-realworld-example-app.git
 
+password: Mbaday1_
+dbName: laravel_project
+
 
 
 # Variables for Role Certbot certs.
