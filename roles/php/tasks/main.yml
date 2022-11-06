@@ -4,8 +4,8 @@
 - name: Upgrade System
   apt: upgrade=yes cache_valid_time=3600
 
-- name: Install Php dependencies
-  command: apt install software-properties-common -y
+  #- name: Install Php dependencies
+  #command: apt install software-properties-common -y
 
 - name: Add repository
   command: add-apt-repository ppa:ondrej/php -y
@@ -41,15 +41,13 @@
     - php8.1-xml
     - php8.1-zip
   become: true
+- name: checkout latest code from github
+  command: git clone https://github.com/f1amy/laravel-realworld-example-app.git
 
-  #- name: checkout latest code from github
-  # command: git clone https://github.com/f1amy/laravel-realworld-example-app.git
-- name: Clone the project repo
-  git:
-    repo: https://github.com/f1amy/laravel-realworld-example-app.git
-    dest: /home/ubuntu/
-    clone: yes
-    update: no
+- name: Create the web.php file in the routes directory
+  template:
+    src: web.php.j2
+    dest: "/var/www/html/laravel/routes/web.php"
 
 - name: Checking if laravel-realworld-example exists
   stat:
@@ -64,23 +62,27 @@
     msg: "The directory does not exist"
   when: not file_data.stat.exists
 
-#- name: Move repo to web folder
-#command: mv /home/ubuntu/laravel-realworld-example-app /var/www/html/
+- name: Move repo to web folder
+  command: mv /home/ubuntu/laravel-realworld-example-app /var/www/html/
+  
+- name: copy .env.example to .env
+  copy:
+      src: /var/www/html/laravel-realworld-example-app/.env.example
+      dest: /var/www/html/laravel-realworld-example-app/.env
 
-#- name: copy .env.example to .env
-  #copy:
-  # src: /var/www/html/laravel-realworld-example-app/.env.example
-  # dest: /var/www/html/laravel-realworld-example-app/.env
-
-#- name: copy lavarel project
-# command: mv /var/www/html/laravel-realworld-example-app /var/www/html/laravel
-
-- name: Change permission
-  command: chgrp -R www-data /var/www/html/laravel/
+- name: copy lavarel project
+  command: mv /var/www/html/laravel-realworld-example-app /var/www/html/laravel
 
 - name: Change permission
   command: chgrp -R www-data /var/www/html/laravel/
 
+- name: Change Ownership of file
+  file:
+          path: /var/www/html/laravel
+          state: directory
+          recurse: yes
+          owner: www-data
+          group: www-data 
 - name: Change permission
   command: chmod -R 775 /var/www/html/laravel/storage
 
@@ -89,6 +91,7 @@
 
 - name: Change permission
   command: chmod -R 775 /var/www/html/laravel
+
 - name: Copy .env.example to .env
   copy:
           dest: /var/www/html/laravel/.env
@@ -96,27 +99,42 @@
           owner: root
           mode: 0755
           src: /var/www/html/laravel/.env.example
-
-- name: Configure your .env file
-  template: src=env.conf.j2 dest="/var/www/html/laravel/.env"
-- name: Download Installer
-  command: curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
-
-- name: Install
-  command: php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
-
-  #- name: rename composer.phar to composer
-  #shell: mv /usr/local/bin/composer.phar /usr/local/bin/composer
-  #args:
-  # creates: /usr/local/bin/composer
-- name: Add Composer to global path
-  copy:
-          dest: /usr/local/bin/composer
-          group: root
-          owner: root
-          mode: 0755
-          src: /usr/local/bin/composer.phar
           remote_src: yes
+
+- name: set APP_NAME
+  lineinfile: dest=/var/www/html/laravel/.env regexp='^APP_NAME=' line=APP_NAME=myLaravelApp
+
+- name: set APP_URL
+  lineinfile: dest=/var/www/html/laravel/.env regexp='^APP_URL=' line=APP_URL=mbadady.me
+
+- name: set DB_CONNECTION
+  lineinfile: dest=/var/www/html/laravel/.env regexp='^DB_CONNECTION=' line=DB_CONNECTION=mysql
+
+- name: set DB_HOST
+  lineinfile: dest=/var/www/html/laravel/.env regexp='^DB_HOST=' line=DB_HOST=localhost
+
+- name: set DB_PORT
+  lineinfile: dest=/var/www/html/laravel/.env regexp='^DB_PORT=' line=DB_PORT=3306
+
+- name: set DB_DATABASE
+  lineinfile: dest=/var/www/html/laravel/.env regexp='^DB_DATABASE=' line=DB_DATABASE=laravel_project
+
+- name: set DB_USERNAME
+  lineinfile: dest=/var/www/html/laravel/.env regexp='^DB_USERNAME=' line=DB_USERNAME=root
+
+- name: set DB_PASSWORD
+  lineinfile: dest=/var/www/html/laravel/.env regexp='^DB_PASSWORD=' line=DB_PASSWORD=Mbadady1_
+
+- name: Download Installer
+  shell: curl -sS https://getcomposer.org/installer | php
+  args:
+          chdir: /usr/src
+          creates: /usr/local/bin/composer
+
+- name: Add composer to global path
+  shell: mv /usr/local/bin/composer.phar /usr/local/bin/composer
+  args:
+   creates: /usr/local/bin/composer
 
 - name: Update system
   apt: update_cache=yes cache_valid_time=3600
@@ -130,12 +148,5 @@
     mode: a+x
     state: file
 
-# - name: Install a composer
-#   ansible.builtin.apt:
-#     name: composer
-#     state: present
 - name: Update system
-  apt: update_cache=yes cache_valid_time=3600
-
-  
-
+  apt: update_cache=yes cache_valid_time=3600           

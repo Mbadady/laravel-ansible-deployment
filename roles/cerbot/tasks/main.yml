@@ -1,0 +1,21 @@
+- name: Update system
+  apt: update_cache=yes cache_valid_time=3600
+
+- name: Upgrade System
+  apt: upgrade=yes cache_valid_time=3600
+
+- name: Install cerbot
+  command: apt install cerbot 
+
+- name: Install python3
+  apt:
+    name: python3-certbot-apache
+    state: present
+    update_cache: yes
+  become: true  
+
+- name: Obtain a certificate
+  command: cerbot --apache -w /var/www/html/laravel -d mbadady.me -d www.mbadady.me --non-interactive --agree-tos -m victorsomtochukwu@gmail.com
+
+- name: Renew your certificate
+  command: cerbot renew --dry-run  

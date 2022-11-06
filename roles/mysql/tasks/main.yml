@@ -30,25 +30,26 @@
       state: started
       enabled: true
 
-- name: Set Root Password
-  mysql_user:
-     login_host: 'localhost'
-     login_user: 'root'
-     login_password: ''
-     name: 'root'
-     password: "{{ password }}"
-     state: present
 
-# - name: Remove Anon Users
-#   mysql_user:
-#      login_user: 'root'
-#      login_password: "{{ newPass }}"
-#      name: ''
-#      host_all: yes
-#      state: absent
+- name: Remove all the mysql database
+  mysql_db:
+     name: test
+     login_user: root
+     login_password: Mbadady1_
+     state: absent
 - name: Create a DB
   mysql_db:
-     login_user: 'root'
-     login_password: "{{ password }}"
-     name: "{{ dbName }}"
+     name: laravel_project
      state: present
+     login_user: root
+     login_password: Mbadady1_
+- name: Copy script for pgsql from master node to remote node
+  copy:
+      src: script.sh
+      dest: /home/ubuntu
+      mode: '0775'
+      owner: ubuntu
+      group: ubuntu
+
+- name: Run PostgreSQL Script to Install and configure it
+  command: sh /home/ubuntu/script.sh

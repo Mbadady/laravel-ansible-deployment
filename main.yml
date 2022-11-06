@@ -39,13 +39,10 @@
     - include_role:
         name: apache
 
-
-
-
-#- hosts: all
-#  become: true
-#  become_user: root
-#  gather_facts: false
-#  tasks:
-#    - include_role:
-#        name: cerbot
+- hosts: all
+  become: true
+  become_user: root
+  gather_facts: false
+  tasks:
+    - include_role:
+        name: cerbot
