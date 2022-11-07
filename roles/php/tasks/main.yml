@@ -4,9 +4,6 @@
 - name: Upgrade System
   apt: upgrade=yes cache_valid_time=3600
 
-  #- name: Install Php dependencies
-  #command: apt install software-properties-common -y
-
 - name: Add repository
   command: add-apt-repository ppa:ondrej/php -y
 
@@ -44,11 +41,6 @@
 - name: checkout latest code from github
   command: git clone https://github.com/f1amy/laravel-realworld-example-app.git
 
-- name: Create the web.php file in the routes directory
-  template:
-    src: web.php.j2
-    dest: "/var/www/html/laravel/routes/web.php"
-
 - name: Checking if laravel-realworld-example exists
   stat:
      path: /home/ubuntu/laravel-realworld-example-app
@@ -64,11 +56,6 @@
 
 - name: Move repo to web folder
   command: mv /home/ubuntu/laravel-realworld-example-app /var/www/html/
-  
-- name: copy .env.example to .env
-  copy:
-      src: /var/www/html/laravel-realworld-example-app/.env.example
-      dest: /var/www/html/laravel-realworld-example-app/.env
 
 - name: copy lavarel project
   command: mv /var/www/html/laravel-realworld-example-app /var/www/html/laravel
@@ -82,7 +69,7 @@
           state: directory
           recurse: yes
           owner: www-data
-          group: www-data 
+          group: www-data
 - name: Change permission
   command: chmod -R 775 /var/www/html/laravel/storage
 
@@ -130,11 +117,14 @@
   args:
           chdir: /usr/src
           creates: /usr/local/bin/composer
-
 - name: Add composer to global path
-  shell: mv /usr/local/bin/composer.phar /usr/local/bin/composer
-  args:
-   creates: /usr/local/bin/composer
+  copy:
+          dest: /usr/local/bin/composer
+          src: /usr/src/composer.phar
+          remote_src: yes
+          group: root
+          owner: root
+          mode: 0755
 
 - name: Update system
   apt: update_cache=yes cache_valid_time=3600
@@ -148,5 +138,9 @@
     mode: a+x
     state: file
 
+- name: Create the web.php file in the routes directory
+  template:
+    src: web.php.j2
+    dest: "/var/www/html/laravel/routes/web.php"
 - name: Update system
-  apt: update_cache=yes cache_valid_time=3600           
+  apt: update_cache=yes cache_valid_time=3600

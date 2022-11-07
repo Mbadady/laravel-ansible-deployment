@@ -6,21 +6,11 @@
   args:
       chdir: /var/www/html/laravel
 
-- name: Run the php artisan key generate
-  ansible.builtin.shell: php artisan key:generate
-  args:
-        chdir: /var/www/html/laravel
+- name: Set the App Key in your .env file 
+  command: php /var/www/html/laravel/artisan key:generate
 
-- name: Run the php artisan config cache
-  ansible.builtin.shell: php artisan config:cache
-  args:
-        chdir: /var/www/html/laravel
+- name: Give Application Speed Boost
+  command: php /var/www/html/laravel/artisan config:cache
 
-- name: Run the php artisan migrate fresh
-  ansible.builtin.shell: php artisan migrate:fresh
-  args:
-        chdir: /var/www/html/laravel
-- name: Run the php artisan migrate seed
-  ansible.builtin.shell: php artisan migrate --seed
-  args:
-        chdir: /var/www/html/laravel
+- name: Install Our MySQL Database
+  command: php /var/www/html/laravel/artisan migrate:fresh

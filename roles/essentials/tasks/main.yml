@@ -4,7 +4,7 @@
   apt:
     name: "{{ item }}"
     update_cache: yes
-    state: present
+    state: latest
   with_items:
     - git
     - vim
@@ -20,7 +20,7 @@
   ufw:
     rule: allow
     name: OpenSSH
-    
+
 - name: Allow Apache
   ufw:
     name: Apache
